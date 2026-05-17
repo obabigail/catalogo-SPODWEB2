@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { supabase } from "../supabaseClient";
 import CardJogo from "../components/CardJogo";
 
 function RPG() {
   const [jogos, setJogos] = useState([]);
 
   useEffect(() => {
-    axios.get("/api/jogos.json").then((res) => {
-      setJogos(res.data.filter((j) => j.genero === "RPG"));
-    });
+    async function carregarJogos() {
+      const { data, error } = await supabase
+        .from("jogos")
+        .select("*")
+        .eq("genero", "RPG"); // filtro direto no banco
+
+      if (error) {
+        console.error("Erro ao buscar jogos:", error);
+      } else {
+        setJogos(data);
+      }
+    }
+
+    carregarJogos();
   }, []);
 
   return (

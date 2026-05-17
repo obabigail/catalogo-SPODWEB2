@@ -7,6 +7,7 @@ function Nav() {
       <NavLink to="/acao">Ação</NavLink>
       <NavLink to="/rpg">RPG</NavLink>
       <NavLink to="/corrida">Corrida</NavLink>
+      <NavLink to="/terror">Terror</NavLink>
       <NavLink to="/catalogo">Catálogo</NavLink>
     </nav>
   );

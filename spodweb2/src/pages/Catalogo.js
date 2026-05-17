@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { supabase } from "../supabaseClient";
 import MenuTabela from "../components/MenuTabela";
 import TabelaJogos from "../components/TabelaJogos";
 import CadastroJogo from "../components/CadastroJogo";
@@ -7,16 +7,49 @@ import CadastroJogo from "../components/CadastroJogo";
 function Catalogo() {
   const [jogos, setJogos] = useState([]);
 
+  //Buscar dados do banco
   useEffect(() => {
-    axios.get("/api/jogos.json").then((res) => setJogos(res.data));
+    async function carregarJogos() {
+      const { data, error } = await supabase
+        .from("jogos")
+        .select("*");
+
+      if (error) {
+        console.error("Erro ao buscar jogos:", error);
+      } else {
+        setJogos(data);
+      }
+    }
+
+    carregarJogos();
   }, []);
 
-  const excluir = (id) => {
-    setJogos(jogos.filter((j) => j.id !== id));
+  //Deletar do banco + atualizar tela
+  const excluir = async (id) => {
+    const { error } = await supabase
+      .from("jogos")
+      .delete()
+      .eq("id", id);
+
+    if (!error) {
+      setJogos(jogos.filter((j) => j.id !== id));
+    } else {
+      console.error(error);
+    }
   };
 
-  const cadastrar = (novo) => {
-    setJogos([...jogos, novo]);
+  //Inserir no banco + atualizar tela
+  const cadastrar = async (novo) => {
+    const { data, error } = await supabase
+      .from("jogos")
+      .insert([novo])
+      .select(); // retorna o item inserido
+
+    if (!error) {
+      setJogos([...jogos, data[0]]);
+    } else {
+      console.error(error);
+    }
   };
 
   return (

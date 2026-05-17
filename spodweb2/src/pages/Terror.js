@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import CardJogo from "../components/CardJogo";
 
-function Acao() {
+function Terror() {
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
@@ -10,7 +10,7 @@ function Acao() {
       const { data, error } = await supabase
         .from("jogos")
         .select("*")
-        .eq("genero", "Ação"); // 🔥 filtro direto no banco
+        .eq("genero", "Terror");
 
       if (error) {
         console.error("Erro ao buscar jogos:", error);
@@ -24,7 +24,7 @@ function Acao() {
 
   return (
     <main>
-      <h1>Jogos de Ação</h1>
+      <h1>Jogos de Terror</h1>
 
       <div className="lista">
         {lista.map((jogo) => (
@@ -35,4 +35,4 @@ function Acao() {
   );
 }
 
-export default Acao;
+export default Terror;

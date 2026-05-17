@@ -1,35 +1,55 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { supabase } from "../supabaseClient";
 import AlterarJogo from "../components/AlterarJogo";
 
 function AlterarPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [jogos, setJogos] = useState([]);
   const [jogo, setJogo] = useState(null);
 
+  // 🔽 Buscar jogo direto do banco
   useEffect(() => {
-    axios.get("/api/jogos.json").then((res) => {
-      setJogos(res.data);
-      setJogo(res.data.find((j) => j.id === parseInt(id)));
-    });
+    async function carregarJogo() {
+      const { data, error } = await supabase
+        .from("jogos")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Erro ao buscar jogo:", error);
+      } else {
+        setJogo(data);
+      }
+    }
+
+    carregarJogo();
   }, [id]);
 
-  const salvarAlteracoes = (atualizado) => {
-    const novaLista = jogos.map((j) =>
-      j.id === atualizado.id ? atualizado : j
-    );
+  // ✏️ Atualizar no banco
+  const salvarAlteracoes = async (atualizado) => {
+    const { error } = await supabase
+      .from("jogos")
+      .update(atualizado)
+      .eq("id", atualizado.id);
 
-    setJogos(novaLista);
-
-    alert("Jogo alterado com sucesso!");
-    navigate("/catalogo");
+    if (!error) {
+      alert("Jogo alterado com sucesso!");
+      navigate("/catalogo");
+    } else {
+      console.error("Erro ao atualizar:", error);
+    }
   };
 
   return (
     <main>
-      {jogo && <AlterarJogo jogo={jogo} salvarAlteracoes={salvarAlteracoes} />}
+      {jogo && (
+        <AlterarJogo
+          jogo={jogo}
+          salvarAlteracoes={salvarAlteracoes}
+        />
+      )}
     </main>
   );
 }
