@@ -79,7 +79,11 @@ async function buscarJogoDoSupabasePorSlug(slug) {
 }
 
 async function criarJogoNoSupabase(jogo) {
-  const { data, error } = await supabase.from("jogos").insert(jogo).single();
+  const { data, error } = await supabase
+    .from("jogos")
+    .insert(jogo)
+    .select()
+    .single();
 
   if (error) {
     throw error;

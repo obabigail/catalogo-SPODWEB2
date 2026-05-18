@@ -79,7 +79,10 @@ function Catalogo() {
     };
 
     try {
-      const jogoCriado = await criarJogo(item);
+      let jogoCriado = await criarJogo(item);
+      if (Array.isArray(jogoCriado)) {
+        jogoCriado = jogoCriado[0];
+      }
       if (!jogoCriado || !jogoCriado.id) {
         throw new Error("Resposta inválida ao cadastrar jogo");
       }
