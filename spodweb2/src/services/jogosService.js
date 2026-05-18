@@ -1,5 +1,6 @@
 import axios from "axios";
 import apiClient, { hasConfiguredApi } from "./apiClient";
+import { supabase, hasConfiguredSupabase } from "./supabaseClient";
 
 const STORAGE_KEY = "jogos";
 const JSON_FALLBACK_URL = "/api/jogos.json";
@@ -36,7 +37,93 @@ async function listarDoFallback() {
   return response.data;
 }
 
+async function listarDoSupabase() {
+  const { data, error } = await supabase
+    .from("jogos")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function buscarJogoDoSupabasePorId(id) {
+  const { data, error } = await supabase
+    .from("jogos")
+    .select("*")
+    .eq("id", Number(id))
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function buscarJogoDoSupabasePorSlug(slug) {
+  const { data, error } = await supabase
+    .from("jogos")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function criarJogoNoSupabase(jogo) {
+  const { data, error } = await supabase.from("jogos").insert(jogo).single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function atualizarJogoNoSupabase(jogo) {
+  const { data, error } = await supabase
+    .from("jogos")
+    .update(jogo)
+    .select()
+    .eq("id", Number(jogo.id))
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error("Nenhum registro retornado após a atualização");
+  }
+
+  return data;
+}
+
+async function excluirJogoNoSupabase(id) {
+  const { error } = await supabase.from("jogos").delete().eq("id", Number(id));
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function listarJogos() {
+  if (hasConfiguredSupabase) {
+    try {
+      return await listarDoSupabase();
+    } catch {
+      return listarDoFallback();
+    }
+  }
+
   if (!hasConfiguredApi) {
     return listarDoFallback();
   }
@@ -50,12 +137,20 @@ export async function listarJogos() {
 }
 
 export async function buscarJogoPorId(id) {
+  if (hasConfiguredSupabase) {
+    try {
+      return await buscarJogoDoSupabasePorId(id);
+    } catch {
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
+    }
+  }
+
   if (hasConfiguredApi) {
     try {
       const response = await apiClient.get(`${API_RESOURCE}/${id}`);
       return response.data;
     } catch {
-      // Mantem o app funcionando com JSON/localStorage enquanto a API SQL nao estiver pronta.
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
     }
   }
 
@@ -64,12 +159,20 @@ export async function buscarJogoPorId(id) {
 }
 
 export async function buscarJogoPorSlug(slug) {
+  if (hasConfiguredSupabase) {
+    try {
+      return await buscarJogoDoSupabasePorSlug(slug);
+    } catch {
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
+    }
+  }
+
   if (hasConfiguredApi) {
     try {
       const response = await apiClient.get(`${API_RESOURCE}/slug/${slug}`);
       return response.data;
     } catch {
-      // Mantem o app funcionando com JSON/localStorage enquanto a API SQL nao estiver pronta.
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
     }
   }
 
@@ -78,12 +181,20 @@ export async function buscarJogoPorSlug(slug) {
 }
 
 export async function criarJogo(jogo) {
+  if (hasConfiguredSupabase) {
+    try {
+      return await criarJogoNoSupabase(jogo);
+    } catch {
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
+    }
+  }
+
   if (hasConfiguredApi) {
     try {
       const response = await apiClient.post(API_RESOURCE, jogo);
       return response.data;
     } catch {
-      // Mantem o app funcionando com JSON/localStorage enquanto a API SQL nao estiver pronta.
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
     }
   }
 
@@ -94,12 +205,20 @@ export async function criarJogo(jogo) {
 }
 
 export async function atualizarJogo(jogo) {
+  if (hasConfiguredSupabase) {
+    try {
+      return await atualizarJogoNoSupabase(jogo);
+    } catch {
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
+    }
+  }
+
   if (hasConfiguredApi) {
     try {
       const response = await apiClient.put(`${API_RESOURCE}/${jogo.id}`, jogo);
       return response.data;
     } catch {
-      // Mantem o app funcionando com JSON/localStorage enquanto a API SQL nao estiver pronta.
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
     }
   }
 
@@ -110,12 +229,21 @@ export async function atualizarJogo(jogo) {
 }
 
 export async function excluirJogo(id) {
+  if (hasConfiguredSupabase) {
+    try {
+      await excluirJogoNoSupabase(id);
+      return;
+    } catch {
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
+    }
+  }
+
   if (hasConfiguredApi) {
     try {
       await apiClient.delete(`${API_RESOURCE}/${id}`);
       return;
     } catch {
-      // Mantem o app funcionando com JSON/localStorage enquanto a API SQL nao estiver pronta.
+      // Mantem o app funcionando com JSON/localStorage enquanto a API nao estiver disponivel.
     }
   }
 

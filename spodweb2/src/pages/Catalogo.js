@@ -80,6 +80,9 @@ function Catalogo() {
 
     try {
       const jogoCriado = await criarJogo(item);
+      if (!jogoCriado || !jogoCriado.id) {
+        throw new Error("Resposta inválida ao cadastrar jogo");
+      }
       setJogos((listaAtual) => [...listaAtual, jogoCriado]);
       alert(`Jogo "${jogoCriado.nome}" cadastrado com sucesso.`);
     } catch {

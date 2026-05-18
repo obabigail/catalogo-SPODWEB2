@@ -20,7 +20,7 @@ function TabelaJogos({ jogos, excluir }) {
       </thead>
 
       <tbody>
-        {jogos.map((jogo) => (
+        {jogos.filter(Boolean).map((jogo) => (
           <tr key={jogo.id}>
             <td>{jogo.id}</td>
             <td>{jogo.nome}</td>
