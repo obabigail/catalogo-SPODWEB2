@@ -1,70 +1,178 @@
-# Getting Started with Create React App
+# Catalogo de Jogos SPODWEB2
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicacao React para exibir e gerenciar um catalogo de jogos. O app possui paginas por categoria, pagina de detalhes, tabela de gerenciamento, cadastro, alteracao e exclusao de jogos.
 
-## Available Scripts
+O projeto esta preparado para consumir uma API REST que futuramente pode ser conectada ao banco SQL `projeto_catalogo_jogos`. Enquanto essa API nao estiver disponivel, os dados continuam funcionando pelo fallback local com JSON e `localStorage`.
 
-In the project directory, you can run:
+## Tecnologias
 
-### `npm start`
+- React
+- React Router DOM
+- Axios
+- Create React App
+- JSON local em `public/api/jogos.json`
+- `localStorage` para simular persistencia temporaria
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Como Rodar
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Instale as dependencias:
 
-### `npm test`
+```bash
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Inicie o projeto:
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Por padrao, o app abre em:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```txt
+http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Scripts
 
-### `npm run eject`
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Roda o app em modo de desenvolvimento.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Gera a versao de producao na pasta `build`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm test
+```
 
-## Learn More
+Executa os testes configurados no projeto.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Estrutura Principal
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```txt
+src/App.js
+```
 
-### Code Splitting
+Define as rotas principais da aplicacao.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```txt
+src/pages
+```
 
-### Analyzing the Bundle Size
+Contem as paginas do app: home, categorias, catalogo, detalhes, alteracao e pagina 404.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```txt
+src/components
+```
 
-### Making a Progressive Web App
+Contem componentes reutilizaveis como cards, tabela, formulario, topo, menu e rodape.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```txt
+src/services
+```
 
-### Advanced Configuration
+Centraliza a comunicacao com dados externos. Essa pasta prepara o app para consumir a futura API conectada ao SQL.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```txt
+public/api/jogos.json
+```
 
-### Deployment
+Fonte inicial de dados usada como fallback.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Fluxo de Dados Atual
 
-### `npm run build` fails to minify
+O acesso aos jogos esta centralizado em:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```txt
+src/services/jogosService.js
+```
+
+Esse service tenta usar a API configurada por `REACT_APP_API_URL`. Se a API nao estiver configurada ou falhar, o app usa:
+
+```txt
+public/api/jogos.json
+localStorage
+```
+
+Esse fallback permite cadastrar, alterar e excluir jogos temporariamente no navegador, sem depender ainda de um backend real.
+
+## Configuracao da API
+
+Crie um arquivo `.env` na raiz da pasta `spodweb2` seguindo o exemplo de `.env.example`:
+
+```env
+REACT_APP_API_URL=http://localhost:3001/api
+```
+
+Com essa variavel definida, o frontend passa a tentar consumir a API antes de cair no fallback local.
+
+## Banco SQL
+
+O frontend nao deve conectar diretamente ao banco SQL. A conexao com `projeto_catalogo_jogos` deve ser feita por um backend, por exemplo em Node.js, PHP, Java, Python ou outra tecnologia.
+
+O frontend espera que esse backend exponha endpoints REST para a entidade de jogos.
+
+## Contrato Esperado da API
+
+```txt
+GET    /jogos
+GET    /jogos/:id
+GET    /jogos/slug/:slug
+POST   /jogos
+PUT    /jogos/:id
+DELETE /jogos/:id
+```
+
+## Campos de Jogo
+
+Os nomes dos campos esperados pelo frontend sao:
+
+```txt
+id
+slug
+nome
+genero
+preco
+descricao
+capa
+```
+
+Exemplo de objeto:
+
+```json
+{
+  "id": 1,
+  "slug": "elden-ring",
+  "nome": "Elden Ring",
+  "genero": "RPG",
+  "preco": 249.9,
+  "descricao": "Um RPG de acao em mundo aberto desenvolvido pela FromSoftware.",
+  "capa": "./imgs/eldenring.webp"
+}
+```
+
+## Rotas do App
+
+```txt
+/              Home com jogos em destaque
+/acao          Jogos de acao
+/rpg           Jogos de RPG
+/terror        Jogos de terror
+/corrida       Jogos de corrida
+/catalogo      Gerenciamento do catalogo
+/jogo/:slug    Detalhes de um jogo
+/alterar/:id   Alteracao de um jogo
+```
+
+## Observacoes
+
+- O fallback com `localStorage` e temporario.
+- Quando o backend SQL estiver pronto, a maior parte da integracao deve acontecer em `src/services/jogosService.js`.
+- Os campos da API devem manter os mesmos nomes usados hoje pelo JSON.
+- Imagens cadastradas localmente usam caminhos compativeis com as capas existentes em `src/assets/imgs`.

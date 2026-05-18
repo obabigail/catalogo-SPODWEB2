@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { buscarJogoPorSlug } from "../services/jogosService";
 import "../visuals/App.css";
 
 function JogoDetalhes() {
@@ -8,9 +8,15 @@ function JogoDetalhes() {
   const [jogo, setJogo] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/jogos.json").then((res) => {
-      setJogo(res.data.find((j) => j.slug === slug));
-    });
+    async function carregarJogo() {
+      try {
+        setJogo(await buscarJogoPorSlug(slug));
+      } catch {
+        setJogo(null);
+      }
+    }
+
+    carregarJogo();
   }, [slug]);
 
   // resolver imagens do mesmo jeito que em CardJogo

@@ -1,28 +1,22 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import CardJogo from "../components/CardJogo";
+import { listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
 function RPG() {
   const [jogos, setJogos] = useState([]);
 
   useEffect(() => {
-    // Carrega do localStorage primeiro, com fallback para JSON
-    const stored = localStorage.getItem("jogos");
-    if (stored) {
+    async function carregarJogos() {
       try {
-        const todosJogos = JSON.parse(stored);
+        const todosJogos = await listarJogos();
         setJogos(todosJogos.filter((j) => j.genero === "RPG"));
-        return;
-      } catch (e) {
-        // Em caso de erro, busca do JSON
+      } catch {
+        setJogos([]);
       }
     }
 
-    // Fallback: busca do JSON original
-    axios.get("/api/jogos.json").then((res) => {
-      setJogos(res.data.filter((j) => j.genero === "RPG"));
-    });
+    carregarJogos();
   }, []);
 
   return (

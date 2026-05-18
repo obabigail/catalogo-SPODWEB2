@@ -1,52 +1,39 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import MenuTabela from "../components/MenuTabela";
 import TabelaJogos from "../components/TabelaJogos";
 import CadastroJogo from "../components/CadastroJogo";
+import { criarJogo, excluirJogo, listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
 function Catalogo() {
   const [jogos, setJogos] = useState([]);
 
-  // load from localStorage if available, otherwise fetch and persist
   useEffect(() => {
-    const stored = localStorage.getItem("jogos");
-    if (stored) {
+    async function carregarJogos() {
       try {
-        setJogos(JSON.parse(stored));
-        return;
-      } catch (e) {
-        // fallthrough to fetch
+        setJogos(await listarJogos());
+      } catch {
+        alert("Erro ao carregar jogos.");
       }
     }
 
-    axios.get("/api/jogos.json").then((res) => {
-      setJogos(res.data);
-      localStorage.setItem("jogos", JSON.stringify(res.data));
-    });
+    carregarJogos();
   }, []);
 
-  // helper: persist and set state immutably
-  const updateJogos = (next) => {
-    setJogos(next);
-    try {
-      localStorage.setItem("jogos", JSON.stringify(next));
-    } catch (e) {
-      // ignore storage errors
-    }
-  };
-
-  const excluir = (id) => {
+  const excluir = async (id) => {
     const jogo = jogos.find((j) => j.id === id);
     if (!jogo) return;
 
     if (!window.confirm(`Confirma exclusão do jogo "${jogo.nome}"?`)) return;
 
-    const next = jogos.filter((j) => j.id !== id);
-    updateJogos(next);
+    try {
+      await excluirJogo(id);
+      setJogos((listaAtual) => listaAtual.filter((j) => j.id !== id));
+    } catch {
+      alert("Erro ao excluir jogo.");
+    }
   };
 
-  // create unique id based on the highest existing id + 1
   const generateId = () => {
     if (!jogos || jogos.length === 0) return 1;
     const maxId = jogos.reduce((max, j) => {
@@ -72,8 +59,7 @@ function Catalogo() {
     return slug;
   };
 
-  const cadastrar = (novo) => {
-    // validation
+  const cadastrar = async (novo) => {
     if (!novo.nome || !novo.genero || isNaN(Number(novo.preco))) {
       alert("Preencha nome, gênero e preço válidos antes de cadastrar.");
       return;
@@ -92,9 +78,13 @@ function Catalogo() {
       slug,
     };
 
-    const next = [...jogos, item];
-    updateJogos(next);
-    alert(`Jogo "${item.nome}" cadastrado com sucesso.`);
+    try {
+      const jogoCriado = await criarJogo(item);
+      setJogos((listaAtual) => [...listaAtual, jogoCriado]);
+      alert(`Jogo "${jogoCriado.nome}" cadastrado com sucesso.`);
+    } catch {
+      alert("Erro ao cadastrar jogo.");
+    }
   };
 
   return (

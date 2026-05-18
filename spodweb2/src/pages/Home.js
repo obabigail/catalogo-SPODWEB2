@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import CardJogo from "../components/CardJogo";
+import { listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
 function Home() {
   const [jogos, setJogos] = useState([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("jogos");
-    if (stored) {
+    async function carregarJogos() {
       try {
-        setJogos(JSON.parse(stored));
-        return;
-      } catch (e) {
-        // ignore and fall back to fetch
+        setJogos(await listarJogos());
+      } catch {
+        setJogos([]);
       }
     }
 
-    axios.get("/api/jogos.json").then((res) => setJogos(res.data));
+    carregarJogos();
   }, []);
 
   return (

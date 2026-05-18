@@ -1,28 +1,22 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import CardJogo from "../components/CardJogo";
+import { listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
 function Corrida() {
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
-    // Carrega do localStorage primeiro, com fallback para JSON
-    const stored = localStorage.getItem("jogos");
-    if (stored) {
+    async function carregarJogos() {
       try {
-        const jogos = JSON.parse(stored);
+        const jogos = await listarJogos();
         setLista(jogos.filter((j) => j.genero === "Corrida"));
-        return;
-      } catch (e) {
-        // Em caso de erro, busca do JSON
+      } catch {
+        setLista([]);
       }
     }
 
-    // Fallback: busca do JSON original
-    axios.get("/api/jogos.json").then((res) =>
-      setLista(res.data.filter((j) => j.genero === "Corrida"))
-    );
+    carregarJogos();
   }, []);
 
   return (

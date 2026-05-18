@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import AlterarJogo from "../components/AlterarJogo";
+import { atualizarJogo, listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
 function AlterarPage() {
@@ -10,47 +10,36 @@ function AlterarPage() {
   const [jogos, setJogos] = useState([]);
   const [jogo, setJogo] = useState(null);
 
-  // Carrega jogos do localStorage (mesma lógica do Catalogo.js)
   useEffect(() => {
-    const stored = localStorage.getItem("jogos");
-    if (stored) {
+    async function carregarJogos() {
       try {
-        const jogosLocal = JSON.parse(stored);
-        setJogos(jogosLocal);
-        setJogo(jogosLocal.find((j) => j.id === parseInt(id)));
-        return;
-      } catch (e) {
-        // Em caso de erro, busca do JSON original
+        const lista = await listarJogos();
+        setJogos(lista);
+        setJogo(lista.find((j) => j.id === parseInt(id)));
+      } catch {
+        alert("Erro ao carregar jogo.");
       }
     }
 
-    // Fallback: busca do JSON e persiste
-    axios.get("/api/jogos.json").then((res) => {
-      setJogos(res.data);
-      setJogo(res.data.find((j) => j.id === parseInt(id)));
-      localStorage.setItem("jogos", JSON.stringify(res.data));
-    });
+    carregarJogos();
   }, [id]);
 
-  const salvarAlteracoes = (atualizado) => {
-    // Validação dos dados
+  const salvarAlteracoes = async (atualizado) => {
     if (!atualizado.nome || !atualizado.genero || isNaN(Number(atualizado.preco))) {
       alert("Preencha nome, gênero e preço válidos antes de salvar.");
       return;
     }
 
-    // Atualiza a lista mantendo a imutabilidade
-    const novaLista = jogos.map((j) =>
-      j.id === atualizado.id ? atualizado : j
-    );
-
-    // Persiste no localStorage (mesma lógica do Catalogo.js)
-    setJogos(novaLista);
     try {
-      localStorage.setItem("jogos", JSON.stringify(novaLista));
+      const jogoAtualizado = await atualizarJogo(atualizado);
+      const novaLista = jogos.map((j) =>
+        j.id === jogoAtualizado.id ? jogoAtualizado : j
+      );
+
+      setJogos(novaLista);
       alert("Jogo alterado com sucesso!");
       navigate("/catalogo");
-    } catch (e) {
+    } catch {
       alert("Erro ao salvar alterações. Tente novamente.");
     }
   };
