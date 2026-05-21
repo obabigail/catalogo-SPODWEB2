@@ -29,11 +29,13 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 1rem;
   padding: 0 1.25rem;
   color: var(--accent);
 }
+
+.App-footer p { margin: 0; width: 100%; text-align: center; }
 
 .App-logo {
   width: 5rem;
@@ -114,8 +116,9 @@
 
 .catalogo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
+  align-items: start;
 }
 
 .game-card {
@@ -126,20 +129,55 @@
   display: flex;
   flex-direction: column;
   transition: transform .18s ease, box-shadow .18s ease;
+  height: 420px; /* fixed height for consistent cards */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .game-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
 }
 
-.game-card img {
+.game-card .cover-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card .jogo-cover {
   width: 100%;
-  height: 220px;
-  object-fit: contain;
+  height: 240px; /* fixed cover height */
+  object-fit: cover;
   object-position: center;
-  background-color: rgba(0,0,0,0.3);
   display: block;
+  transition: transform .28s ease;
+}
+
+.game-card:hover .jogo-cover { transform: scale(1.04); }
+
+.card-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 60%);
+  gap: 0.5rem;
+}
+
+.overlay-info { display: flex; flex-direction: column; gap: 0.125rem; }
+.overlay-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+.overlay-button {
+  background: rgba(255,255,255,0.06);
+  color: var(--accent);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .card {
@@ -178,10 +216,48 @@
   color: #eef5ee;
 }
 
-.game-meta {
-  font-size: 0.85rem;
-  color: rgba(234,247,236,0.8);
+.game-info {
+  padding: 0.85rem 0.9rem 1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
 }
+
+.game-desc {
+  color: rgba(234,247,236,0.85);
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.game-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-link {
+  background: rgba(255,255,255,0.04);
+  color: var(--accent);
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.overlay-button { display: none; }
+
+.game-price { font-size: 1.02rem; font-weight: 900; color: var(--accent); }
+
+.game-meta { font-size: 0.85rem; color: rgba(234,247,236,0.8); }
 
 .game-price {
   margin-top: auto;
@@ -199,8 +275,11 @@
 }
 
 .carrossel > .item,
-.carrossel > .card {
-  min-width: 240px;
+.carrossel > .card,
+.carrossel > .game-card {
+  min-width: 260px;
+  flex: 0 0 260px;
+  width: 260px;
   scroll-snap-align: center;
 }
 
@@ -240,17 +319,22 @@
   font-weight: 700;
 }
 
+/* simple header and nav—no search/login UI */
+
 /* Responsive tweaks */
 @media (max-width: 768px) {
-  .game-card img { height: 160px; }
+  .game-card .jogo-cover { height: 180px; }
   .App-header { height: 64px; padding: 0 0.75rem; }
   .App-name { font-size: 1.1rem; }
-  .catalogo-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .catalogo-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  /* responsive tweaks kept minimal */
 }
 
 @media (max-width: 420px) {
-  .game-card img { height: 140px; }
-  .carrossel > .item { min-width: 180px; }
+  .game-card .jogo-cover { height: 140px; }
+  .carrossel > .item { min-width: 160px; }
+  .overlay-button { padding: 0.25rem 0.5rem; font-size: 0.85rem; }
+  /* small tweaks only */
 }
 
 .jogo-cover {
