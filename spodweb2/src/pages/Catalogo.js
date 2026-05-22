@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MenuTabela from "../components/MenuTabela";
 import TabelaJogos from "../components/TabelaJogos";
 import CadastroJogo from "../components/CadastroJogo";
+import CardJogo from "../components/CardJogo";
 import { criarJogo, excluirJogo, listarJogos } from "../services/jogosService";
 import "../visuals/App.css";
 
@@ -79,7 +80,13 @@ function Catalogo() {
     };
 
     try {
-      const jogoCriado = await criarJogo(item);
+      let jogoCriado = await criarJogo(item);
+      if (Array.isArray(jogoCriado)) {
+        jogoCriado = jogoCriado[0];
+      }
+      if (!jogoCriado || !jogoCriado.id) {
+        throw new Error("Resposta inválida ao cadastrar jogo");
+      }
       setJogos((listaAtual) => [...listaAtual, jogoCriado]);
       alert(`Jogo "${jogoCriado.nome}" cadastrado com sucesso.`);
     } catch {
@@ -90,8 +97,22 @@ function Catalogo() {
   return (
     <main>
       <h1>Catálogo de Jogos</h1>
+
+      <section className="catalogo" aria-label="Catálogo de jogos">
+        <div className="catalogo-grid">
+          {jogos && jogos.length > 0 ? (
+            jogos.map((j) => <CardJogo key={j.id} jogo={j} />)
+          ) : (
+            <p>Nenhum jogo encontrado.</p>
+          )}
+        </div>
+      </section>
+
       <MenuTabela />
+
+      <h2>Lista de Jogos (Admin)</h2>
       <TabelaJogos jogos={jogos} excluir={excluir} />
+
       <CadastroJogo cadastrar={cadastrar} />
     </main>
   );

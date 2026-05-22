@@ -112,11 +112,11 @@ REACT_APP_API_URL=http://localhost:3001/api
 
 Com essa variavel definida, o frontend passa a tentar consumir a API antes de cair no fallback local.
 
-## Banco SQL
+## Banco SQL / Supabase
 
-O frontend nao deve conectar diretamente ao banco SQL. A conexao com `projeto_catalogo_jogos` deve ser feita por um backend, por exemplo em Node.js, PHP, Java, Python ou outra tecnologia.
+O frontend pode conectar diretamente ao Supabase usando as variaveis de ambiente abaixo. O Supabase funciona como um backend gerenciado para o banco `projeto_catalogo_jogos` e permite expor dados por meio de sua API segura.
 
-O frontend espera que esse backend exponha endpoints REST para a entidade de jogos.
+Se voce preferir continuar usando um backend REST local, mantenha o `REACT_APP_API_URL` configurado.
 
 ## Contrato Esperado da API
 

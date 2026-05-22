@@ -10,7 +10,7 @@ function CadastroJogo({ cadastrar }) {
   const [genero, setGenero] = useState("");
   const [preco, setPreco] = useState("");
 
-  const salvar = (e) => {
+  const salvar = async (e) => {
     e.preventDefault();
 
     // Validações no cliente
@@ -36,7 +36,7 @@ function CadastroJogo({ cadastrar }) {
       descricao: "Jogo cadastrado manualmente."
     };
 
-    cadastrar(novo);
+    await cadastrar(novo);
 
     // Limpa os campos após cadastro bem-sucedido
     setNome("");

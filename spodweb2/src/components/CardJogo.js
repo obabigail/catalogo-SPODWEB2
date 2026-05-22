@@ -7,8 +7,6 @@ function CardJogo({ jogo }) {
   const resolveSrc = (capa) => {
     if (!capa) return images("./logo.png");
 
-    // if path is absolute (served from public), prefer resolving from src assets first,
-    // falling back to the public path if not available
     if (capa.startsWith("/")) {
       const maybeName = capa.replace(/^\/?imgs\//, "");
       try {
@@ -18,13 +16,11 @@ function CardJogo({ jogo }) {
       }
     }
 
-    // normalize strings like './imgs/name.ext' or 'imgs/name.ext'
-    const name = capa.replace(/^\.?\/imgs\//, "");
+    const name = capa.replace(/^\.?\/?imgs\//, "");
 
     try {
       return images(`./${name}`);
     } catch (e) {
-      // fallback to logo
       return images("./logo.png");
     }
   };
@@ -32,13 +28,23 @@ function CardJogo({ jogo }) {
   const src = resolveSrc(jogo.capa);
 
   return (
-    <div className="card">
-      <img className="jogo-cover" src={src} alt={jogo.nome} />
-      <h3>{jogo.nome}</h3>
-      <p>{jogo.genero}</p>
-      <p>R$ {jogo.preco.toFixed(2)}</p>
-      <Link to={`/jogo/${jogo.slug}`} className="App-link">Ver detalhes</Link>
-    </div>
+    <article className="game-card" aria-label={jogo.nome}>
+      <div className="cover-wrapper">
+        <img className="jogo-cover" src={src} alt={jogo.nome} />
+      </div>
+
+      <div className="game-info">
+        <h3 className="game-title">{jogo.nome}</h3>
+        <div className="game-meta">{jogo.genero}</div>
+        <p className="game-desc">
+          {jogo.descricao ? (jogo.descricao.length > 120 ? jogo.descricao.slice(0,120) + '…' : jogo.descricao) : 'Sem descrição.'}
+        </p>
+        <div className="game-bottom">
+          <span className="game-price">R$ {Number(jogo.preco).toFixed(2)}</span>
+          <Link to={`/jogo/${jogo.slug}`} className="card-link">Ver detalhes</Link>
+        </div>
+      </div>
+    </article>
   );
 }
 
